@@ -2,11 +2,13 @@ public class Company {
     private int sharePrice;
     private int sharePriceOld;
     private int remainingShares;   // In der Anleitung wird nicht explizit erwähnt wie viele Shares es pro Unternehmen gibt. Nur dass es insgesamt 80 gibt.
-    private int remainingMarkers = 18;
+    private int remainingMarkers;
 
-    public Company(int sharesAmount, int markerAmount){
-        remainingShares = sharesAmount;
-        remainingMarkers = markerAmount;
+    public Company(){
+        remainingShares = 40;
+        remainingMarkers = 18;
+        sharePrice = 0;
+        sharePriceOld = 0;
     }
 
     public int getSharePrice(){

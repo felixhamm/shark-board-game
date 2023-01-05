@@ -1,29 +1,80 @@
+import java.util.Random;
+
 public class Shark {
 	
 	public static void main(String[] args) {
-		String playerList[] = {"Player A", "Player B", "Player C"}; // Test
-		int sharesPerCompany = 20;
-		int markersPerCompany = 18;
+
+		int randNum;
+		int activePlayer = 0;
+		int numOfPlayers = 2;
+		int activeCompany;
+		int activeZone;
 		
+		Random rand = new Random();
+
+		Company NYSO = new Company();
+		Company Wings = new Company();
+		Company Empire = new Company();
+		Company SmithAndSmith = new Company();
+
+
+		Player PlayerA = new Player("Felix_H");
+		Player PlayerB = new Player("Felix_I");
+
+		
+		String playerList[] = {PlayerA.getName(),PlayerB.getName()};
+
 		SharkGUI m = new SharkGUI(playerList);
-		Company NYSO = new Company(sharesPerCompany, markersPerCompany);
-		Company Wings = new Company(sharesPerCompany, markersPerCompany);
-		Company Empire = new Company(sharesPerCompany, markersPerCompany);
-		Company SmithAndSmith = new Company(sharesPerCompany, markersPerCompany);
+		m.disableBoard();
 		
 		// Some GUI methods ...
-		m.setPlayerInfo(playerList[(int)(Math.random()*playerList.length)]);
+		//m.setPlayerInfo(playerList[(int)(Math.random()*playerList.length)]);
 		
-		m.setSharePrice(0, 1000);
-		m.setSharePrice(1, 7000);
-		m.setSharePrice(2, 14000);
-		m.setSharePrice(3, 12000);
+		m.setSharePrice(SharkConstants.NYSO, NYSO.getSharePrice());
+		m.setSharePrice(SharkConstants.WINGS, Wings.getSharePrice());
+		m.setSharePrice(SharkConstants.EMPIRE, Empire.getSharePrice());
+		m.setSharePrice(SharkConstants.SMITH_AND_SMITH, SmithAndSmith.getSharePrice());
+
+		for (int i = 0; i < numOfPlayers; i++){			//Muss erweitert werden falls mehr als zwei Spieler spielen
+			switch(i){
+				case 0:
+					randNum = rand.nextInt(4);
+					PlayerA.setShares(randNum, 1);
+					m.setNumOfShares(i,randNum+1,PlayerA.getShares(randNum));
+					break;
+				case 1:
+					randNum = rand.nextInt(4);
+					PlayerB.setShares(randNum, 1);
+					m.setNumOfShares(i,randNum+1,PlayerB.getShares(randNum));
+					break;
+			}
+		}
+
 		
-		m.setForcedSalePlayerLabel(playerList[(int)(Math.random()*playerList.length)]);
+		m.setPlayerInfo(null);
+
 		
-		m.setForcedSaleBalance(-2000);
+		//m.setForcedSalePlayerLabel(playerList[(int)(Math.random()*playerList.length)]);
+		
+		//m.setForcedSaleBalance(-2000);
 		
 		//m.disableBoard();
+
+
+		
 		
 	}
+
+	private int numDice(){
+		Random d = new Random();
+		int num = d.nextInt(6) + 1;
+		return num;
+	}
+
+	private int colorDice(){
+		Random d = new Random();
+		int num = d.nextInt(4) + 1;
+		return num;
+	}
+
 }
