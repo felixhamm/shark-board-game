@@ -1,4 +1,7 @@
 import java.util.Random;
+import java.awt.event.ActionListener;
+import javax.swing.JButton;
+import javax.swing.JFrame;
 
 public class Shark {
 	
@@ -8,7 +11,7 @@ public class Shark {
 		int activePlayer = 0;
 		int numOfPlayers = 2;
 		int activeCompany;
-		int activeZone;
+		int activeRegion;
 		
 		Random rand = new Random();
 
@@ -18,8 +21,8 @@ public class Shark {
 		Company SmithAndSmith = new Company();
 
 
-		Player PlayerA = new Player("Felix_H");
-		Player PlayerB = new Player("Felix_I");
+		Player PlayerA = new Player("Felix H");
+		Player PlayerB = new Player("Felix I");
 
 		
 		String playerList[] = {PlayerA.getName(),PlayerB.getName()};
@@ -29,13 +32,20 @@ public class Shark {
 		
 		// Some GUI methods ...
 		//m.setPlayerInfo(playerList[(int)(Math.random()*playerList.length)]);
+		//m.setForcedSalePlayerLabel(playerList[(int)(Math.random()*playerList.length)]);
+		
+		//m.setForcedSaleBalance(-2000);
+		
+		//m.disableBoard();
+
+
 		
 		m.setSharePrice(SharkConstants.NYSO, NYSO.getSharePrice());
 		m.setSharePrice(SharkConstants.WINGS, Wings.getSharePrice());
 		m.setSharePrice(SharkConstants.EMPIRE, Empire.getSharePrice());
 		m.setSharePrice(SharkConstants.SMITH_AND_SMITH, SmithAndSmith.getSharePrice());
 
-		for (int i = 0; i < numOfPlayers; i++){			//Muss erweitert werden falls mehr als zwei Spieler spielen
+		for (int i = 0; i < numOfPlayers; i++){																						//Muss erweitert werden falls mehr als zwei Spieler spielen
 			switch(i){
 				case 0:
 					randNum = rand.nextInt(4);
@@ -50,28 +60,18 @@ public class Shark {
 			}
 		}
 
+		m.setPlayerInfo(PlayerA.getName());
 		
-		m.setPlayerInfo(null);
-
-		
-		//m.setForcedSalePlayerLabel(playerList[(int)(Math.random()*playerList.length)]);
-		
-		//m.setForcedSaleBalance(-2000);
-		
-		//m.disableBoard();
-
-
-		
-		
+	
 	}
 
-	private int numDice(){
+	private static int numDice(){
 		Random d = new Random();
 		int num = d.nextInt(6) + 1;
 		return num;
 	}
 
-	private int colorDice(){
+	private static int colorDice(){																									//Aktuell ist es noch nicht möglich bei schwarz oder weiß eine Firma frei zu wählen. Deshalb geht der wüftel nur von 1 bis 4
 		Random d = new Random();
 		int num = d.nextInt(4) + 1;
 		return num;
