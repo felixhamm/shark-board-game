@@ -1,10 +1,7 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Font;
 import java.awt.FontMetrics;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -33,17 +30,13 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
-public class SharkGUI extends JFrame {
-	Color colorSelect = Color.green;
-	boolean btnAreaFilled = true;
-	
+public class SharkGUI extends JFrame {	
 	private String[] playerList;
 	
 	private final String radioList[] = { "Green", "Red", "Blue", "Yellow", "Reset" };
@@ -78,6 +71,7 @@ public class SharkGUI extends JFrame {
 	private JLabel playerInfo;
 	
 	// Tabbed Pane
+	public JTabbedPane tabbedPaneSteps;
 	/**
 	 * <b>Structure:</b><br>
      * nextButtons[0]: Step 1: Buy & Sell <br>
@@ -134,30 +128,22 @@ public class SharkGUI extends JFrame {
 		mainPanel.setLayout(new GridBagLayout());
 	    GridBagConstraints c = new GridBagConstraints();
 	    
-		
+	    
 		// Image Panel
 		ImagePanel worldMapPanel = new ImagePanel(
 		        new ImageIcon("images/world_map_small.jpg").getImage());
 		
 		worldMapPanel.setLayout(new GridLayout(10, 12));
 		
-		
-		for (int i = 0; i < 10; i++)
-		{
-		      for (int j = 0; j < 12; j++)
-		      {
-		        board[i][j] = new CompanyMarker();
+		for (int i = 0; i < 10; i++){
+			for (int j = 0; j < 12; j++){
+				board[i][j] = new CompanyMarker();
 		        board[i][j].setContentAreaFilled(false);
-		        board[i][j].addActionListener(new ActionListener() {
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						((JButton)e.getSource()).setContentAreaFilled(btnAreaFilled);
-						((JButton)e.getSource()).setBackground(colorSelect);
-					}
-				});
+		        
 		        worldMapPanel.add(board[i][j]);
-		      }
+			}
 		}
+		
 		
 		// Table Panel 1
 		for(int i = 0; i < playerList.length; i++) {
@@ -261,10 +247,11 @@ public class SharkGUI extends JFrame {
 		
 		for (int i = 0; i < radioList.length; i++) {
 			radioButtons[i] = new JRadioButton (radioList[i], false);
-			radioButtons[i].setActionCommand(radioList[i]);
 			radioBtnGroup.add(radioButtons[i]);
 			radioPanel.add(radioButtons[i]);
 		}
+		
+		radioButtons[0].setSelected(true);
 		
 		panelStep2.add(diceBtn,getGBC(0, 0, 1, 3, VERTICAL, 0.0, 1.0, LINE_START, new Insets(5,5,5,10)));
 		panelStep2.add(label1_step2,getGBC(1, 0, 1, 1, BOTH, 1.0, 0.0, CENTER, new Insets(5,10,10,10)));
@@ -359,69 +346,13 @@ public class SharkGUI extends JFrame {
 	    sellButtons[2] = sellBtn_step5;
         
 	    
-        JTabbedPane tabbedPaneSteps = new JTabbedPane
-            (JTabbedPane.TOP,JTabbedPane.SCROLL_TAB_LAYOUT );
+        tabbedPaneSteps = new JTabbedPane(JTabbedPane.TOP,JTabbedPane.SCROLL_TAB_LAYOUT );
  
         tabbedPaneSteps.addTab("I. Buy & Sell", panelStep1);
         tabbedPaneSteps.addTab("II. Roll the Dice", panelStep2);
         tabbedPaneSteps.addTab("III. Set Marker", panelStep3);
         tabbedPaneSteps.addTab("IV. Buy & Sell", panelStep4);
         tabbedPaneSteps.addTab("Forced Sale [!]", panelStep5);
-        
-
-        // Action Listeners
-        diceBtn.addActionListener(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// Test
-				setRegionLabel((int)(1+Math.random()*6));
-				setColorBtn((int)(1+Math.random()*6));
-				
-			}
-		});
-        
-        nextBtn_step2.addActionListener(new ActionListener() {
-			
-        	@Override
-        	public void actionPerformed(ActionEvent e) {
-        		tabbedPaneSteps.setSelectedIndex(2);
-        		tabbedPaneSteps.setEnabledAt(1,false);	
-			}
-		});
-        
-        ActionListener radioButtonActionListener = new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-			    switch(e.getActionCommand()) {
-			    case "Green":
-			    	btnAreaFilled = true;
-			    	colorSelect = Color.green;
-			    	break;
-			    case "Red":
-			    	btnAreaFilled = true;
-			    	colorSelect = Color.red;
-			    	break;
-			    case "Blue":
-			    	btnAreaFilled = true;
-			    	colorSelect = Color.blue;
-			    	break;
-			    case "Yellow":
-			    	btnAreaFilled = true;
-			    	colorSelect = Color.yellow;
-			    	break;
-			    case "Reset":
-			    	btnAreaFilled = false;
-			    	break;
-			    }
-			}
-		};
-		
-		
-		for (int i = 0; i < radioList.length; i++) {
-			radioButtons[i].addActionListener(radioButtonActionListener);
-		}
         
         
         // Main Panel - GridBagLayout
@@ -525,6 +456,22 @@ public class SharkGUI extends JFrame {
 				colorInfoLabel.setText("You're lucky! Choose a color.");
 			}
 		}
+	}
+	
+	public int getSelectedRadioBtnIndex() {
+		int index = -1;
+		
+		for (int i = 0; i < radioButtons.length; i++) {
+			if(radioButtons[i].isSelected()) {
+				index = i;
+			}
+		}
+		
+		if(index == -1) {
+			System.out.println("Error: No Radio Button is selected!"); 
+		}
+		
+		return index;
 	}
 	
 	// Step 3: Set Company Marker
