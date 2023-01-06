@@ -1,4 +1,5 @@
 import java.util.Random;
+import java.util.ArrayList;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -14,7 +15,6 @@ public class Shark {
 		int activePlayer = 0;
 		int numOfPlayers = 2;
 		int activeCompany;
-		int activeRegion;
 		
 		Random rand = new Random();
 
@@ -31,6 +31,35 @@ public class Shark {
 		String playerList[] = {PlayerA.getName(),PlayerB.getName()};
 
 		SharkGUI gui = new SharkGUI(playerList);
+		gui.disableBoard();
+
+
+
+		gui.setSharePrice(SharkConstants.NYSO, NYSO.getSharePrice());
+		gui.setSharePrice(SharkConstants.WINGS, Wings.getSharePrice());
+		gui.setSharePrice(SharkConstants.EMPIRE, Empire.getSharePrice());
+		gui.setSharePrice(SharkConstants.SMITH_AND_SMITH, SmithAndSmith.getSharePrice());
+
+		for (int i = 0; i < numOfPlayers; i++){																						//Muss erweitert werden falls mehr als zwei Spieler spielen
+			switch(i){
+				case 0:
+					randNum = rand.nextInt(4);
+					PlayerA.setShares(randNum, 1);
+					gui.setNumOfShares(i,randNum+1,PlayerA.getShares(randNum));
+					break;
+				case 1:
+					randNum = rand.nextInt(4);
+					PlayerB.setShares(randNum, 1);
+					gui.setNumOfShares(i,randNum+1,PlayerB.getShares(randNum));
+					break;
+			}
+		}
+
+		gui.setPlayerInfo(PlayerA.getName());
+		gui.tabbedPaneSteps.setSelectedIndex(1);
+
+
+
 		
 		
 		//  Action Listeners for GUI Elements
@@ -148,15 +177,18 @@ public class Shark {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// Set the Dice Result Labels (Example Code)
-				gui.setRegionLabel((int)(1+Math.random()*6));
+				int activeRegion = (int)(1+Math.random()*6);
+				gui.setRegionLabel((activeRegion));
 				gui.setColorBtn((int)(1+Math.random()*6));
 				
-				// ...
+				gui.setRegionLabel(activeRegion);
 				
 			}
 		};
 		
 		gui.diceBtn.addActionListener(diceButtonActionListener);
+		//nextButtonActionListener.actionPerformed(1);
+
 		
 		//----------------------------------------
 		
@@ -172,41 +204,8 @@ public class Shark {
 
 
 		
-		gui.setSharePrice(SharkConstants.NYSO, NYSO.getSharePrice());
-		gui.setSharePrice(SharkConstants.WINGS, Wings.getSharePrice());
-		gui.setSharePrice(SharkConstants.EMPIRE, Empire.getSharePrice());
-		gui.setSharePrice(SharkConstants.SMITH_AND_SMITH, SmithAndSmith.getSharePrice());
-
-		for (int i = 0; i < numOfPlayers; i++){																						//Muss erweitert werden falls mehr als zwei Spieler spielen
-			switch(i){
-				case 0:
-					randNum = rand.nextInt(4);
-					PlayerA.setShares(randNum, 1);
-					gui.setNumOfShares(i,randNum+1,PlayerA.getShares(randNum));
-					break;
-				case 1:
-					randNum = rand.nextInt(4);
-					PlayerB.setShares(randNum, 1);
-					gui.setNumOfShares(i,randNum+1,PlayerB.getShares(randNum));
-					break;
-			}
-		}
-
-		gui.setPlayerInfo(PlayerA.getName());
+		
 		
 	
 	}
-
-	private static int numDice(){
-		Random d = new Random();
-		int num = d.nextInt(6) + 1;
-		return num;
-	}
-
-	private static int colorDice(){																									//Aktuell ist es noch nicht möglich bei schwarz oder weiß eine Firma frei zu wählen. Deshalb geht der wüftel nur von 1 bis 4
-		Random d = new Random();
-		int num = d.nextInt(4) + 1;
-		return num;
-	}
-
 }
