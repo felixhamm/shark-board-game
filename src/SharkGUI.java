@@ -666,7 +666,38 @@ public class SharkGUI extends JFrame {
     }
     
     class CompanyMarker extends JButton {
-    	
+    	private int chainIndex;
+		private int companyIndex;
+		private boolean set;
+
+		public CompanyMarker(){
+			chainIndex = SharkConstants.NONE;
+			companyIndex = SharkConstants.NONE;
+		}
+
+		public void setChainIndex(int index){
+			chainIndex = index;	
+		}
+
+		public int getChainIndex(){
+			return chainIndex;
+		}
+
+		public void setSet(boolean isSet){
+			set = isSet;
+		}
+
+		public boolean isSet(){
+			return set;
+		}
+
+		public void setCompanyIndex(int company){
+			companyIndex = company;
+		}
+
+		public int getCompanyIndex(){
+			return companyIndex;
+		}
     }
 
     // Source: https://www.javacodex.com/Graphics/Bar-Chart

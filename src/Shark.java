@@ -8,6 +8,8 @@ import javax.swing.JFrame;
 
 
 public class Shark {
+
+	public static SharkGUI gui;
 	
 	public static void main(String[] args) {
 
@@ -27,10 +29,13 @@ public class Shark {
 		Player PlayerA = new Player("Felix H");
 		Player PlayerB = new Player("Felix I");
 
+
+		ArrayList<int[]> chainList = new ArrayList<int[]>();
+
 		
 		String playerList[] = {PlayerA.getName(),PlayerB.getName()};
 
-		SharkGUI gui = new SharkGUI(playerList);
+		gui = new SharkGUI(playerList);
 		gui.disableBoard();
 
 
@@ -58,12 +63,16 @@ public class Shark {
 		gui.setPlayerInfo(PlayerA.getName());
 		gui.tabbedPaneSteps.setSelectedIndex(1);
 
+		for(int i=0; i<5; i++){
+			gui.nextButtons[i].setEnabled(false);
+			gui.tabbedPaneSteps.setEnabledAt(i,false);
+		}
 
-
+		
 		
 		
 		//  Action Listeners for GUI Elements
-		
+
 		// Board Action Listener
 		ActionListener boardActionListener = new ActionListener() {
 			@Override
@@ -98,7 +107,8 @@ public class Shark {
 				((JButton)e.getSource()).setContentAreaFilled(btnAreaFilled);
 				((JButton)e.getSource()).setBackground(colorSelect);
 				
-				// ...
+				gui.disableBoard();
+				gui.nextButtons[1].setEnabled(true);
 				
 			}
 		};
@@ -129,6 +139,17 @@ public class Shark {
 					gui.tabbedPaneSteps.setSelectedIndex(index+1);
 	        		gui.tabbedPaneSteps.setEnabledAt(index,false);
 				}
+
+				switch(index){
+					case 0:
+						gui.nextButtons[1].setEnabled(false);
+					case 1:
+						gui.nextButtons[2].setEnabled(false);
+					case 2:
+						gui.nextButtons[3].setEnabled(false);
+					case 3:
+						gui.nextButtons[0].setEnabled(false);
+				};
 			}
 		};
 		
@@ -179,33 +200,61 @@ public class Shark {
 				// Set the Dice Result Labels (Example Code)
 				int activeRegion = (int)(1+Math.random()*6);
 				gui.setRegionLabel((activeRegion));
+				activateRegion(activeRegion);
 				gui.setColorBtn((int)(1+Math.random()*6));
-				
-				gui.setRegionLabel(activeRegion);
-				
+				gui.diceBtn.setEnabled(false);
 			}
 		};
 		
 		gui.diceBtn.addActionListener(diceButtonActionListener);
-		//nextButtonActionListener.actionPerformed(1);
-
-		
-		//----------------------------------------
-		
-		//gui.disableBoard();
-		
-		// Some GUI methods ...
-		//gui.setPlayerInfo(playerList[(int)(Math.random()*playerList.length)]);
-		//gui.setForcedSalePlayerLabel(playerList[(int)(Math.random()*playerList.length)]);
-		
-		//gui.setForcedSaleBalance(-2000);
-		
-		//gui.disableBoard();
-
-
-		
-		
 		
 	
+	}
+
+	private static void activateRegion(int region){
+		switch(region){
+			case 1:
+				for(int i=0;i<5;i++){
+					for(int j=0;j<4;j++){
+						gui.board[i][j].setEnabled(true);
+					}
+				}
+				break;
+			case 2:
+				for(int i=0;i<5;i++){
+					for(int j=4;j<8;j++){
+						gui.board[i][j].setEnabled(true);
+					}
+				}
+				break;
+			case 3:
+				for(int i=0;i<5;i++){
+					for(int j=8;j<12;j++){
+						gui.board[i][j].setEnabled(true);
+					}
+				}
+				break;
+			case 4:
+				for(int i=5;i<10;i++){
+					for(int j=0;j<4;j++){
+						gui.board[i][j].setEnabled(true);
+					}
+				}
+				break;
+			case 5:
+				for(int i=5;i<10;i++){
+					for(int j=4;j<8;j++){
+						gui.board[i][j].setEnabled(true);
+					}
+				}
+				break;
+			case 6:
+				for(int i=5;i<10;i++){
+					for(int j=8;j<12;j++){
+						gui.board[i][j].setEnabled(true);
+					}
+				}
+				break;
+		};
 	}
 }
