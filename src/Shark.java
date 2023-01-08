@@ -31,13 +31,16 @@ public class Shark {
 
 
 		ArrayList<int[]> chainList = new ArrayList<int[]>();
+		//int[] newThing = {1,2,3};
+		//chainList.add(0,newThing);
+		//int[] newThing2 = chainList.get(0);
+		//System.out.println(newThing2[1]);
 
-		
 		String playerList[] = {PlayerA.getName(),PlayerB.getName()};
+
 
 		gui = new SharkGUI(playerList);
 		gui.disableBoard();
-
 
 
 		gui.setSharePrice(SharkConstants.NYSO, NYSO.getSharePrice());
@@ -256,5 +259,19 @@ public class Shark {
 				}
 				break;
 		};
+	}
+
+	private ArrayList<int[]> connectChains(ArrayList<int[]> chainList){
+
+		for(int i=0;i<10;i++){
+			for(int j=0;j<12;j++){
+				if(gui.board[i][j].isSet()){
+					
+
+				}
+			}
+		}
+
+		return chainList;
 	}
 }
