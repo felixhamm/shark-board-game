@@ -80,6 +80,13 @@ public class Shark {
 		ActionListener boardActionListener = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				String[] coordinates = e.getActionCommand().split("-");
+				
+				int row = Integer.parseInt(coordinates[0]);
+				int column = Integer.parseInt(coordinates[1]);
+				
+				//System.out.println("Button was pressed => Row: "+row+" Column: "+column); // Test
+				
 				// Set Background Color of Specific Field (Example Code)
 				Color colorSelect = Color.green;
 				boolean btnAreaFilled = true;
@@ -118,6 +125,7 @@ public class Shark {
 		
 		for (int i = 0; i < 10; i++){
 			for (int j = 0; j < 12; j++){
+				gui.board[i][j].setActionCommand(String.valueOf(i)+"-"+String.valueOf(j));
 		        gui.board[i][j].addActionListener(boardActionListener);
 		    }
 		}
