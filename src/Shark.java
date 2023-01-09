@@ -459,7 +459,6 @@ public class Shark {
 				if(gui.board[i][j].getChainIndex() == chain){
 					length++;
 				}
-
 			}
 		}
 
