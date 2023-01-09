@@ -16,6 +16,10 @@ public class Player {
         return cash;
     }
 
+    public void addCash(int amount){
+        cash = cash + amount;
+    }
+
     public void setCash(int newCash){
         cash = newCash;
     }

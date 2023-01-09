@@ -27,11 +27,19 @@ public class Company {
         sharePriceOld = newSharePriceOld;
     }
 
-    public void updateRemainingShares(){
-
+    public int getRemainingShares(){
+        return remainingShares;
     }
 
-    public void updateRemainingMarkers(){
+    public void setRemainingShares(int shares){
+        remainingShares = shares;
+    }
 
+    public void setRemainingMarkers(int markers){
+        remainingMarkers = markers;
+    }
+
+    public int getRemainingMarkers(){
+        return remainingMarkers;
     }
 }
