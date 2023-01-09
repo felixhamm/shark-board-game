@@ -43,10 +43,6 @@ public class Shark {
 		PlayerB = new Player("Felix I");
 
 
-		chainList = new ArrayList<int[]>();
-		int[] newElement = {0,0,0};
-
-
 		String playerList[] = {PlayerA.getName(),PlayerB.getName()};
 
 
@@ -79,7 +75,9 @@ public class Shark {
 
 		for(int i=0; i<5; i++){
 			gui.nextButtons[i].setEnabled(false);
-			gui.tabbedPaneSteps.setEnabledAt(i,false);
+			if(i != 1) {
+				gui.tabbedPaneSteps.setEnabledAt(i,false);
+			}
 		}
 
 		
@@ -129,6 +127,8 @@ public class Shark {
 				gui.board[row][column].setSet(true);
 				gui.board[row][column].setCompanyIndex(activeCompany);
 				gui.board[row][column].setChainIndex(chainList.size());
+				
+				int[] newElement = {0,0,0};
 				newElement[0] = chainList.size();
 				newElement[1] = 1;
 				newElement[2] = activeCompany;
