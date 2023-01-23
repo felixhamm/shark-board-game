@@ -274,6 +274,8 @@ public class Shark {
 				int company = 0;
 				int newShares = 0;
 				int price = 0;
+				int remainingShares = 0;
+				boolean actionPerformed = false;
 				// Console Message (Example Code)
 				//System.out.println("Buy Button "+(index+1)+" was pressed");
 
@@ -289,34 +291,57 @@ public class Shark {
 				switch(company){
 					case SharkConstants.NYSO:
 						price = NYSO.getSharePrice() * quantity;
+						remainingShares = NYSO.getRemainingShares();
 						break;
 					case SharkConstants.EMPIRE:
 						price = Empire.getSharePrice() * quantity;
+						remainingShares = Empire.getRemainingShares();
 						break;
 					case SharkConstants.SMITH_AND_SMITH:
 						price = SmithAndSmith.getSharePrice() * quantity;
+						remainingShares = SmithAndSmith.getRemainingShares();
 						break;
 					case SharkConstants.WINGS:
 						price = Wings.getSharePrice() * quantity;
+						remainingShares = Wings.getRemainingShares();
 						break;
 				};
 				
 				switch(activePlayer){
 					case 0:
-						if(PlayerA.getCash() >= price){
+						if(PlayerA.getCash() >= price && remainingShares - quantity >= 0){
 							newShares = PlayerA.getShares(company) + quantity;
 							PlayerA.setShares(company, newShares);
 							PlayerA.setCash(PlayerA.getCash() - price);
+							actionPerformed = true;
 						}
 						break;
 					case 1:
-						if(PlayerB.getCash() >= price){
+						if(PlayerB.getCash() >= price && remainingShares - quantity >= 0){
 							newShares = PlayerB.getShares(company) + quantity;
 							PlayerB.setShares(company, newShares);
 							PlayerB.setCash(PlayerB.getCash() - price);
+							actionPerformed = true;
 						}
 						break;
 				};
+
+				if(actionPerformed){
+					switch(company){
+						case SharkConstants.NYSO:
+							NYSO.setRemainingShares(remainingShares - quantity);
+							break;
+						case SharkConstants.EMPIRE:
+							Empire.setRemainingShares(remainingShares - quantity);
+							break;
+						case SharkConstants.SMITH_AND_SMITH:
+							SmithAndSmith.setRemainingShares(remainingShares - quantity);
+							break;
+						case SharkConstants.WINGS:
+							Wings.setRemainingShares(remainingShares - quantity);
+							break;
+					};
+				}
 
 				updateGui();
 				
@@ -336,6 +361,7 @@ public class Shark {
 				int quantity = 0;
 				int company = 0;
 				int price = 0;
+				boolean actionPerformed = false;
 				// Console Message (Example Code)
 				//System.out.println("Sell Button "+(index+1)+" was pressed");
 				System.out.println(index);
@@ -378,6 +404,23 @@ public class Shark {
 						}
 						break;
 				};
+
+				if(actionPerformed){
+					switch(company){
+						case SharkConstants.NYSO:
+							NYSO.setRemainingShares(NYSO.getRemainingShares() + quantity);
+							break;
+						case SharkConstants.EMPIRE:
+							Empire.setRemainingShares(Empire.getRemainingShares() + quantity);
+							break;
+						case SharkConstants.SMITH_AND_SMITH:
+							SmithAndSmith.setRemainingShares(SmithAndSmith.getRemainingShares() + quantity);
+							break;
+						case SharkConstants.WINGS:
+							Wings.setRemainingShares(Wings.getRemainingShares() + quantity);
+							break;
+					};
+				}
 
 				updateGui();
 			}
