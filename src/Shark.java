@@ -140,16 +140,16 @@ public class Shark {
 				gui.disableBoard();
 				chainList = connectChains(chainList);
 
-				int[] listElement = {0,0,0};
-				for(int i=0;i<chainList.size();i++){
-					listElement = chainList.get(i);
-					System.out.println(listElement[0]);
-					System.out.println(listElement[1]);
-					System.out.println(listElement[2]);
-					System.out.println("-");
-
-				}
-				System.out.println("-------");
+				//int[] listElement = {0,0,0};
+				//for(int i=0;i<chainList.size();i++){
+				//	listElement = chainList.get(i);
+				//	System.out.println(listElement[0]);
+				//	System.out.println(listElement[1]);
+				//	System.out.println(listElement[2]);
+				//	System.out.println("-");
+				
+				//}
+				//System.out.println("-------");
 
 				updateCompanyValues(chainList);
 				givePlayerSuccessFee(activePlayer, activeCompany);
@@ -270,9 +270,55 @@ public class Shark {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				int index = Integer.parseInt(e.getActionCommand());
+				int quantity = 0;
+				int company = 0;
+				int newShares = 0;
+				int price = 0;
 				// Console Message (Example Code)
-				System.out.println("Buy Button "+(index+1)+" was pressed");
+				//System.out.println("Buy Button "+(index+1)+" was pressed");
+
+				if(index == 0){
+					quantity = gui.getQuantity(SharkConstants.TAB_1_BUY_AND_SELL);
+					company = gui.getCompanyIndex(SharkConstants.TAB_1_BUY_AND_SELL);
+				}
+				if(index == 1){
+					quantity = gui.getQuantity(SharkConstants.TAB_4_BUY_AND_SELL);
+					company = gui.getCompanyIndex(SharkConstants.TAB_4_BUY_AND_SELL);
+				}
+
+				switch(company){
+					case SharkConstants.NYSO:
+						price = NYSO.getSharePrice() * quantity;
+						break;
+					case SharkConstants.EMPIRE:
+						price = Empire.getSharePrice() * quantity;
+						break;
+					case SharkConstants.SMITH_AND_SMITH:
+						price = SmithAndSmith.getSharePrice() * quantity;
+						break;
+					case SharkConstants.WINGS:
+						price = Wings.getSharePrice() * quantity;
+						break;
+				};
 				
+				switch(activePlayer){
+					case 0:
+						if(PlayerA.getCash() >= price){
+							newShares = PlayerA.getShares(company) + quantity;
+							PlayerA.setShares(company, newShares);
+							PlayerA.setCash(PlayerA.getCash() - price);
+						}
+						break;
+					case 1:
+						if(PlayerB.getCash() >= price){
+							newShares = PlayerB.getShares(company) + quantity;
+							PlayerB.setShares(company, newShares);
+							PlayerB.setCash(PlayerB.getCash() - price);
+						}
+						break;
+				};
+
+				updateGui();
 				
 			}
 		};
@@ -287,10 +333,53 @@ public class Shark {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				int index = Integer.parseInt(e.getActionCommand());
+				int quantity = 0;
+				int company = 0;
+				int price = 0;
 				// Console Message (Example Code)
-				System.out.println("Sell Button "+(index+1)+" was pressed");
-				
-				// ...
+				//System.out.println("Sell Button "+(index+1)+" was pressed");
+				System.out.println(index);
+
+				if(index == 0){
+					quantity = gui.getQuantity(SharkConstants.TAB_1_BUY_AND_SELL);
+					company = gui.getCompanyIndex(SharkConstants.TAB_1_BUY_AND_SELL);
+				}
+				if(index == 1){
+					quantity = gui.getQuantity(SharkConstants.TAB_4_BUY_AND_SELL);
+					company = gui.getCompanyIndex(SharkConstants.TAB_4_BUY_AND_SELL);
+				}
+
+				switch(company){
+					case SharkConstants.NYSO:
+						price = NYSO.getSharePrice() * quantity;
+						break;
+					case SharkConstants.EMPIRE:
+						price = Empire.getSharePrice() * quantity;
+						break;
+					case SharkConstants.SMITH_AND_SMITH:
+						price = SmithAndSmith.getSharePrice() * quantity;
+						break;
+					case SharkConstants.WINGS:
+						price = Wings.getSharePrice() * quantity;
+						break;
+				};
+
+				switch(activePlayer){
+					case 0:
+						if(PlayerA.getShares(company) >= quantity){
+							PlayerA.setShares(company, PlayerA.getShares(company) - quantity);
+							PlayerA.setCash(PlayerA.getCash() + price);
+						}
+						break;
+					case 1:
+						if(PlayerB.getShares(company) >= quantity){
+							PlayerB.setShares(company, PlayerB.getShares(company) - quantity);
+								PlayerB.setCash(PlayerB.getCash() + price);
+						}
+						break;
+				};
+
+				updateGui();
 			}
 		};
 		
@@ -437,8 +526,8 @@ public class Shark {
 
 				if(gui.board[i][j].getChainIndex() == oldIndex){
 					gui.board[i][j].setChainIndex(newIndex);
-					//oldElement = chainList.get(oldIndex);
-					//oldElement[1] = 0;
+					oldElement = chainList.get(oldIndex);
+					oldElement[1] = 0;
 
 				}
 
@@ -594,6 +683,8 @@ public class Shark {
 				break;
 		};
 	}
+
+	
 }
 
 
