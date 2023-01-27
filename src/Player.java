@@ -3,9 +3,17 @@ public class Player {
     private int cash = 0;
     private boolean active = true;
     private int shares[] = {0, 0, 0, 0};
+    private int debt = 0;
+    
+    private int playerIndex;
 
-    public Player(String playerName){
-        name = playerName;
+    public Player(int playerIndex, String playerName){
+        this.playerIndex = playerIndex;
+    	name = playerName;
+    }
+    
+    public int getPlayerIndex(){
+    	return playerIndex;
     }
 
     public String getName(){
@@ -30,6 +38,14 @@ public class Player {
 
     public void setShares(int company, int newShares){
         shares[company] = newShares;
+    }
+    
+    public void setDebt(int debt){
+    	this.debt = debt;
+    }
+    
+    public int getDebt(){
+    	return debt;
     }
 
     public void disablePlayer(){

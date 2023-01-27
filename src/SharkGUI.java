@@ -39,7 +39,7 @@ import javax.swing.JLabel;
 public class SharkGUI extends JFrame {	
 	private String[] playerList;
 	
-	private final String radioList[] = { "Green", "Red", "Blue", "Yellow", "Reset" };
+	private final String radioList[] = { "Green", "Red", "Blue", "Yellow" };
 	private final String companyList[] = {	"NYSO (Green)", 
 											"Smith & Smith (Red)",
 											"Empire (Blue)",
@@ -91,7 +91,7 @@ public class SharkGUI extends JFrame {
 	 * <b>Structure:</b><br>
      * sellButtons[0]: Step 1: Buy & Sell <br>
      * sellButtons[1]: Step 4: Buy & Sell <br>
-     * sellButtons[1]: Step 5: Forced Sale
+     * sellButtons[2]: Step 5: Forced Sale
      */
 	public JButton sellButtons[] = new JButton[3];
 	
@@ -100,8 +100,8 @@ public class SharkGUI extends JFrame {
 	
 	// Step 2: Roll the Dice
 	private JLabel regionLabel;
-	private JLabel colorInfoLabel;
-	private JRadioButton radioButtons[] = new JRadioButton[radioList.length];
+	private JLabel diceInfoLabel;
+	public JRadioButton radioButtons[] = new JRadioButton[radioList.length];
 	
 	public JButton diceBtn;
 	
@@ -238,7 +238,7 @@ public class SharkGUI extends JFrame {
         label3_step2.setOpaque(true);
         label3_step2.setBackground(labelBackgroundColor);
         label3_step2.setBorder(labelBorderStep2);
-        colorInfoLabel = new JLabel("You're lucky! Choose a color.", SwingConstants.CENTER);
+        diceInfoLabel = new JLabel("You're lucky! Choose a color.", SwingConstants.CENTER);
         
         ButtonGroup radioBtnGroup = new ButtonGroup();
         
@@ -257,7 +257,7 @@ public class SharkGUI extends JFrame {
 		panelStep2.add(label1_step2,getGBC(1, 0, 1, 1, BOTH, 1.0, 0.0, CENTER, new Insets(5,10,10,10)));
 		panelStep2.add(regionLabel,getGBC(1, 1, 1, 2, BOTH, 0.0, 0.0, CENTER, new Insets(5,10,20,10)));
 		panelStep2.add(label3_step2,getGBC(2, 0, 1, 1, BOTH, 1.0, 0.0, CENTER, new Insets(5,10,10,10)));
-		panelStep2.add(colorInfoLabel,getGBC(2, 1, 1, 1, BOTH, 1.0, 0.0, CENTER, new Insets(5,10,5,10)));
+		panelStep2.add(diceInfoLabel,getGBC(2, 1, 1, 1, BOTH, 1.0, 0.0, CENTER, new Insets(5,10,5,10)));
 		panelStep2.add(radioPanel,getGBC(2, 2, 1, 1, BOTH, 0.0, 0.0, CENTER, new Insets(5,10,20,10)));
 		panelStep2.add(nextBtn_step2,getGBC(3, 0, 1, 3, VERTICAL, 0.0, 1.0, LINE_END, new Insets(5,10,5,5)));
         
@@ -293,7 +293,7 @@ public class SharkGUI extends JFrame {
         JLabel label1_step5 = new JLabel("Player:");
         forcedSalePlayerLabel = new JLabel("[...]",SwingConstants.CENTER);
 	    JLabel label3_step5 = new JLabel("Quantity:");
-	    spinner_step5 = new JSpinner(new SpinnerNumberModel(0,0,40,1));
+	    spinner_step5 = new JSpinner(new SpinnerNumberModel(1,1,40,1));
 	    JLabel label4_step5 = new JLabel("Company:");
 	    combobox_step5 = new JComboBox(companyList);
 	    JButton sellBtn_step5 = new JButton("Sell");
@@ -394,7 +394,7 @@ public class SharkGUI extends JFrame {
 	
 	// Table 1	
 	public void setNumOfShares(int playerIndex, int companyIndex, int value) {
-		tableModel1.setValueAt(String.valueOf(value), playerIndex, companyIndex);
+		tableModel1.setValueAt(String.valueOf(value), playerIndex, companyIndex + 1);
 	}
 	
 	public void setCash(int playerIndex, int value) {
@@ -431,7 +431,7 @@ public class SharkGUI extends JFrame {
 	// Step 2: Roll the Dice
 	public void resetPanelStep2() {
 		regionLabel.setText("?");
-		colorInfoLabel.setText("Roll the Dice!");
+		diceInfoLabel.setText("Roll the Dice!");
 		radioButtonsSetVisible(false);
 	}
 	
@@ -448,14 +448,18 @@ public class SharkGUI extends JFrame {
 		if((number >= 1) && (number <= 6)) {
 			if(number <= 4) {
 				int i = number-1;
-				colorInfoLabel.setText("Diced Color: " + radioList[i]);
+				diceInfoLabel.setText("Diced Color: " + radioList[i]);
 				radioButtons[i].setSelected(true);
 				radioButtonsSetEnabled(false);
 			}
 			else {
-				colorInfoLabel.setText("You're lucky! Choose a color.");
+				diceInfoLabel.setText("You're lucky! Choose a color.");
 			}
 		}
+	}
+	
+	public void setDiceInfo(String text) {
+		diceInfoLabel.setText(text);
 	}
 	
 	public int getSelectedRadioBtnIndex() {
@@ -477,7 +481,7 @@ public class SharkGUI extends JFrame {
 	// Step 3: Set Company Marker
 	public void addLineToPayoutSummary(String newText) {
 		String text = payoutSummary.getText();
-		payoutSummary.setText(text + newText);
+		payoutSummary.setText(text + newText + "\n");
 	}
 	
 	public void resetPayoutSummary() {
@@ -828,13 +832,14 @@ public class SharkGUI extends JFrame {
     		this.setLayout(new GridBagLayout());
     	    
     	    JLabel label1 = new JLabel("Quantity:");
-    	    spinner = new JSpinner(new SpinnerNumberModel(0,0,40,1));
+    	    spinner = new JSpinner(new SpinnerNumberModel(1,1,40,1));
     	    JLabel label2 = new JLabel("Company:");
     	    combobox = new JComboBox(companyList);        
     	    buyBtn = new JButton("Buy");
     	    sellBtn = new JButton("Sell");
     	    JLabel label3 = new JLabel("Info:");
     	    textfield = new JTextField("You can only buy a maximum of 5 shares!");
+    	    textfield.setColumns(40);
     	    textfield.setEditable(false);
     	    textfield.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
     	    nextBtn = new JButton(new ImageIcon("images/next_icon.png"));
