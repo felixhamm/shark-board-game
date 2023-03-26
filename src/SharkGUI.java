@@ -48,9 +48,9 @@ public class SharkGUI extends JFrame {
 	private final String title1[] = {"Player", "NYSO", "Smith & Smith", "Empire", "Wings", "Cash"};
 	private final String[][] data1 = new String[6][6];
 	private final String title2[] = {"", "NYSO", "Smith & Smith", "Empire", "Wings"};
-	private final String data2[][] = {	{"Share Price", "0", "0", "0", "0"},
-										{"Remaining Shares", "40", "40", "40", "40"},
-										{"Remaining Markers", "18", "18", "18", "18"}};
+	private final String data2[][] = {	{"Share Price", "-", "-", "-", "-"},
+										{"Remaining Shares", "-", "-", "-", "-"},
+										{"Remaining Markers", "-", "-", "-", "-"}};
     
 	
 	final Color labelBackgroundColor = new Color(236, 204, 137);
@@ -399,6 +399,14 @@ public class SharkGUI extends JFrame {
 	
 	public void setCash(int playerIndex, int value) {
 		tableModel1.setValueAt(String.valueOf(value), playerIndex, 5);
+	}
+	
+	public void removePlayer(int playerIndex){
+		String player = (String) tableModel1.getValueAt(playerIndex, 0);
+		tableModel1.setValueAt("<html><body><s>"+player+"</s></body></html>", playerIndex, 0);
+		for(int i = 1; i <= 5; i++){
+			tableModel1.setValueAt("-", playerIndex, i);
+		}
 	}
 	
 	// Table 2

@@ -1,16 +1,23 @@
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
 
 
 public class Shark {
-	// ToDos:
-	// - Implement end of game (One company reaches a share price of 15000 or all markers of one color are gone)
-	// - ...
-	
 	// Global variables
 	private static SharkGUI gui;
 
@@ -26,7 +33,10 @@ public class Shark {
 	private static Company activeCompany;
 	private static int activeRegion;
 	private static ArrayList<int[]> chainList = new ArrayList<int[]>();
+	private static int buyLimit = 0;
+	
 	private static boolean forcedSaleIndicator = false;
+	private static boolean gameOver = false;
 
 	
 	public static void main(String[] args) {
@@ -66,7 +76,9 @@ public class Shark {
 			if(i != 1) {
 				gui.tabbedPaneSteps.setEnabledAt(i,false);
 			}
-		}		
+		}
+		
+		updateGui();
 		
 		
 		//  Action Listeners for GUI Elements
@@ -98,42 +110,16 @@ public class Shark {
 				((JButton)e.getSource()).setContentAreaFilled(true);
 				((JButton)e.getSource()).setBackground(activeCompany.getColor());
 				
-				activeCompany.setRemainingMarkers(activeCompany.getRemainingMarkers()-1);
+				int remainingMarkers = activeCompany.getRemainingMarkers()-1;
+				activeCompany.setRemainingMarkers(remainingMarkers);
+				if(remainingMarkers == 0) {
+					gameOver = true;
+				}
 				
 				gui.disableBoard();
 				mergeChains(row,column);
 				destroyChains(row,column);
 				boolean anyLosses = updateCompanyValues();
-				
-				/*
-				// Console Debugging
-					// a) ChainList Entries
-					int[] listElement = {0,0,0};
-					for(int i=0;i<chainList.size();i++){
-						listElement = chainList.get(i);
-						System.out.println(i+".) "+listElement[0]+" | "+listElement[1]+" | "+listElement[2]);
-					}
-					System.out.println("-------");
-					// b) Map of chainIndex
-					for (int i = 0; i < 10; i++){
-						System.out.printf("|");
-						for (int j = 0; j < 12; j++){
-							int index = gui.board[i][j].getChainIndex();
-							if(index < 0){
-								System.out.printf("--|");
-							}
-							else if(index < 10){
-								System.out.printf(String.valueOf(" "+index+"|"));
-							}
-							else{
-								System.out.printf(String.valueOf(index+"|"));
-							}
-						}
-						System.out.printf("\n");
-					}
-					System.out.println("-------");
-				// End of Console Debugging 
-				*/
 
 				// Alternative: Move on to step 3 (automatically) after marker placement
 				// In this case the next button of step 2 is not used!
@@ -155,10 +141,15 @@ public class Shark {
 				}
 				else{
 					gui.nextButtons[2].setEnabled(true);
-					updateGui();
 				}
 
+				// Game Over?
+				if(gameOver) {
+					gameOverRoutine();					
+					gui.nextButtons[2].setEnabled(false);
+				}
 				
+				updateGui();
 			}
 		};
 		
@@ -188,7 +179,8 @@ public class Shark {
 						gui.tabbedPaneSteps.setSelectedIndex(3);
 		        		gui.tabbedPaneSteps.setEnabledAt(1,false);
 
-						gui.nextButtons[3].setEnabled(true);
+		        		gui.nextButtons[1].setEnabled(false);
+		        		gui.nextButtons[3].setEnabled(true);
 						break;
 					case 2:
 						if(forcedSaleIndicator){
@@ -206,23 +198,36 @@ public class Shark {
 						
 						break;
 					case 3:
-						int activePlayerIndex = activePlayer.getPlayerIndex();
+						int oldIndex = activePlayer.getPlayerIndex();
+						int newIndex = (oldIndex+1)%numOfPlayers;
 						
-						resetInfoBoxes(); // Reset all Info boxes
-						
-						gui.tabbedPaneSteps.setEnabledAt(0,true);
-		        		gui.tabbedPaneSteps.setSelectedIndex(0);
-		        		gui.tabbedPaneSteps.setEnabledAt(3,false);
-
-						gui.nextButtons[0].setEnabled(true);
-						if(activePlayerIndex < numOfPlayers-1){
-							activePlayer = Players[activePlayerIndex+1];
+						while(!(Players[newIndex].getActivityStatus())){
+							if(newIndex == oldIndex){
+								break;
+							}
+							newIndex = (newIndex+1)%numOfPlayers;
+						}
+						if(newIndex == oldIndex){
+							gameOver = true;
+							gameOverRoutine();
+							
+							gui.tabbedPaneSteps.setEnabledAt(2,true);
+			        		gui.tabbedPaneSteps.setSelectedIndex(2);
+			        		
+			        		gui.nextButtons[2].setEnabled(false);
 						}
 						else{
-							activePlayer = Players[0];
+							activePlayer = Players[newIndex];
+							buyLimit = 0;
+							resetInfoBoxes(); // Reset all Info boxes
+							setActivePlayerName(); // Update Player Label
+							
+							gui.tabbedPaneSteps.setEnabledAt(0,true);
+			        		gui.tabbedPaneSteps.setSelectedIndex(0);
+			        		
+			        		gui.nextButtons[0].setEnabled(true);
 						}
-						
-						setActivePlayerName(); // Update Player Label
+						gui.tabbedPaneSteps.setEnabledAt(3,false);
 						break;
 					case 4:
 						gui.tabbedPaneSteps.setEnabledAt(2,true);
@@ -244,8 +249,6 @@ public class Shark {
 		ActionListener buyButtonActionListener = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// ToDo: Implement following feature: "A player can only buy 5 shares per turn"
-				
 				int index = Integer.parseInt(e.getActionCommand());
 				int tab = 0;
 				// Console Message (Example Code)
@@ -271,15 +274,21 @@ public class Shark {
 				
 				if(sharePrice > 0){
 					if(activePlayer.getCash() >= price){
-						if(remainingShares - quantity >= 0){
-							int newShares = activePlayer.getShares(activeCompany.getCompanyIndex()) + quantity;
-							activePlayer.setShares(activeCompany.getCompanyIndex(), newShares);
-							activePlayer.setCash(activePlayer.getCash() - price);
-							activeCompany.setRemainingShares(remainingShares - quantity);
-							gui.setBrokerInfoText(tab,"You've bought "+String.valueOf(quantity)+" "+activeCompany.getName()+" share(s) for "+String.valueOf(price)+" FT");
+						if(buyLimit + quantity <= 5){
+							if(remainingShares - quantity >= 0){
+								int newShares = activePlayer.getShares(activeCompany.getCompanyIndex()) + quantity;
+								activePlayer.setShares(activeCompany.getCompanyIndex(), newShares);
+								activePlayer.setCash(activePlayer.getCash() - price);
+								activeCompany.setRemainingShares(remainingShares - quantity);
+								buyLimit += quantity;
+								gui.setBrokerInfoText(tab,"You've bought "+String.valueOf(quantity)+" "+activeCompany.getName()+" share(s) for "+String.valueOf(price)+" FT");
+							}
+							else{
+								gui.setBrokerInfoText(tab,"There are only "+String.valueOf(remainingShares)+" "+activeCompany.getName()+" share(s) left");
+							}
 						}
 						else{
-							gui.setBrokerInfoText(tab,"There are only "+String.valueOf(remainingShares)+" "+activeCompany.getName()+" share(s) left");
+							gui.setBrokerInfoText(tab,"You can only buy 5 shares per turn. You've already bought "+String.valueOf(buyLimit)+" share(s)");
 						}
 					}
 					else{
@@ -682,6 +691,10 @@ public class Shark {
 			if(newValue[i] == 0 && isolatedMarkers[i] == true){
 				newValue[i] = 1; // The selected company only holds isolated markers
 			}
+			if(newValue[i] >= 15) {
+				newValue[i] = 15; // 15 is the maximum value
+				gameOver = true;
+			}
 			int oldPrice = Companies[i].getSharePrice();
 			int newPrice = 1000*newValue[i];
 			
@@ -753,11 +766,13 @@ public class Shark {
 	private static void updateGui(){
 		// Update Player Info Table
 		for(int i = 0; i < numOfPlayers; i++){
-			for(int j = 0; j < numOfCompanies; j++) {
-				gui.setNumOfShares(i, j, Players[i].getShares(j));
+			if(Players[i].getActivityStatus()) {
+				for(int j = 0; j < numOfCompanies; j++) {
+					gui.setNumOfShares(i, j, Players[i].getShares(j));
+				}
+				
+				gui.setCash(i, Players[i].getCash());
 			}
-			
-			gui.setCash(i, Players[i].getCash());
 		}
 		// Update Company Info Table
 		for(int i = 0; i < numOfCompanies; i++){
@@ -836,23 +851,46 @@ public class Shark {
 					}
 					// Forced Sale
 					if(totalDebt > 0){
-						// ToDo: Check whether the remaining shares of player are sufficient at all
-						// => If not, player loses!
-						forcedSaleIndicator = true;
-						forcedSalePlayer = Players[i];
-						forcedSalePlayer.setDebt(totalDebt);
-						gui.setForcedSalePlayerLabel(forcedSalePlayer.getName());
-						gui.setForcedSaleBalance((-1)*totalDebt);
-						gui.sellButtons[2].setEnabled(true);
-						gui.nextButtons[2].setEnabled(true);
-						updateGui();
-						return;
+						if(isPlayerSolvent(Players[i], totalDebt)){
+							forcedSaleIndicator = true;
+							forcedSalePlayer = Players[i];
+							forcedSalePlayer.setDebt(totalDebt);
+							gui.setForcedSalePlayerLabel(forcedSalePlayer.getName());
+							gui.setForcedSaleBalance((-1)*totalDebt);
+							gui.sellButtons[2].setEnabled(true);
+							gui.nextButtons[2].setEnabled(true);
+							updateGui();
+							return;
+						}
+						else{
+							// Player can't pay all the debts
+							gui.addLineToPayoutSummary(Players[i].getName()+" is insolvent and is removed from the game!");
+							Players[i].disablePlayer();
+							sellAllShares(i);
+							Players[i].setCash(0);
+							gui.removePlayer(i);
+						}
 					}
 				}
 			}
 		}
 		gui.nextButtons[2].setEnabled(true);
 		updateGui();
+	}
+	
+	private static boolean isPlayerSolvent(Player player, int debt){
+		boolean status = false;
+		int sum = 0;
+		
+		for(int i = 0; i < numOfCompanies; i++) {
+			 sum += ((int)((Companies[i].getSharePrice()*player.getShares(i))/2000))*1000;
+		}
+		
+		if(sum >= debt){
+			status = true;
+		}
+		
+		return status;
 	}
 
 	private static void setActivePlayerName(){
@@ -866,7 +904,76 @@ public class Shark {
 		gui.setBrokerInfoText(SharkConstants.TAB_4_BUY_AND_SELL,"...");
 	}
 	
+	private static void sellAllShares(int playerIndex) {
+		for(int j = 0; j < numOfCompanies; j++) {
+			int sharePrice = Companies[j].getSharePrice();
+			int numOfShares = Players[playerIndex].getShares(Companies[j].getCompanyIndex());
+			int price = sharePrice * numOfShares;
+				
+			Players[playerIndex].setShares(j, 0);
+			Players[playerIndex].setCash(Players[playerIndex].getCash() + price);
+			Companies[j].setRemainingShares(Companies[j].getRemainingShares() + numOfShares);
+		}
+	}
+	
+	private static void gameOverRoutine(){
+		for(int i = 0; i < numOfPlayers; i++) {
+			sellAllShares(i);
+		}
+		int[][] ranking = determineWinner();
+		
+		gui.addLineToPayoutSummary("--- GAME OVER ---");
+		
+		updateGui();
+		
+		JDialog d = new JDialog(gui);
+		
+		String text = "Summary:";
+		
+		for(int i = 0; i < numOfPlayers; i++) {
+			text = text+"<br>"+String.valueOf(ranking[i][1])+". "+Players[ranking[i][0]].getName()+"   ("+String.valueOf(Players[ranking[i][0]].getCash())+" FT)";
+		}
+		
+		JLabel label = new JLabel("<html><body>"+text+"</body></html>");
+		label.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+		label.setVerticalAlignment(JLabel.TOP);
+		
+		d.add(label);
+        
+		d.setResizable(false);
+        d.setTitle("Game Over");
+		d.setLocationRelativeTo(null);
+		d.setSize(250,200);
+		d.setVisible(true);
+	}
+	
+	private static int[][] determineWinner() {
+		ArrayList<Integer> cashList = new ArrayList<Integer>();
+		
+        for (int i = 0; i < numOfPlayers; i++) {
+            if (!cashList.contains(Players[i].getCash())) {
+                cashList.add(Players[i].getCash());
+            }
+        }
+        
+        Collections.sort(cashList,Collections.reverseOrder());
+        
+        int[][] ranking = new int[numOfPlayers][2];
+        
+        for(int i = 0; i < numOfPlayers; i++) {
+        	ranking[i][0] = i;
+        	ranking[i][1] = cashList.indexOf(Players[i].getCash())+1;
+        }
+        
+        Arrays.sort(ranking, new Comparator<int[]>() {
+            @Override
+            public int compare(int[] a, int[] b) {
+               if(a[1] > b[1]) return 1;
+               else return -1;
+            }
+        });
+        
+        return ranking;
+	}
+	
 }
-
-
-//if((gui.board[i+1][j].getCompanyIndex() != gui.board[i][j].getCompanyIndex()) && (gui.board[i+1][j].getCompanyIndex() != SharkConstants.NONE)){
